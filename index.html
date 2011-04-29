@@ -2527,7 +2527,7 @@ $(document).ready(function() {
 
 })
 </script><title>ecopush -- Marginalia</title></head><body><table><tr><td class="docs"><div class="header"><h1 class="project-name">ecopush</h1><h2 class="project-version">1.0.0-SNAPSHOT</h2><br /><p>Robust Market Entry Game Players using Genetic Programming</p>
-</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojure/clojure-contrib</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">swank-clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0</td></tr><tr><td class="dep-name">lein-clojars</td><td class="dotted"><hr /></td><td class="dep-version">0.6.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#ecopush.push">ecopush.push</a></li><li><a href="#ecopush.core">ecopush.core</a></li><li><a href="#ecopush.demo">ecopush.demo</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#ecopush.push" name="ecopush.push"><h1 class="project-name">ecopush.push</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
+</div><div class="dependencies"><h3>dependencies</h3><table><tr><td class="dep-name">org.clojure/clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr><tr><td class="dep-name">org.clojure/clojure-contrib</td><td class="dotted"><hr /></td><td class="dep-version">1.2.0</td></tr></table></div><div class="dependencies"><h3>dev dependencies</h3><table><tr><td class="dep-name">swank-clojure</td><td class="dotted"><hr /></td><td class="dep-version">1.2.1</td></tr><tr><td class="dep-name">marginalia</td><td class="dotted"><hr /></td><td class="dep-version">0.5.0</td></tr><tr><td class="dep-name">lein-clojars</td><td class="dotted"><hr /></td><td class="dep-version">0.6.0</td></tr></table></div></td><td class="codes" style="text-align: center; vertical-align: middle;color: #666;padding-right:20px"><br /><br /><br />(this space intentionally left almost blank)</td></tr><tr><td class="docs"><div class="toc"><a name="toc"><h3>namespaces</h3></a><ul><li><a href="#ecopush.push">ecopush.push</a></li><li><a href="#ecopush.regist">ecopush.regist</a></li><li><a href="#ecopush.core">ecopush.core</a></li><li><a href="#ecopush.demo">ecopush.demo</a></li></ul></div></td><td class="codes">&nbsp;</td></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#ecopush.push" name="ecopush.push"><h1 class="project-name">ecopush.push</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(ns ecopush.push
   (:require [clojure.zip :as zip]
 	    [clojure.contrib.math :as math]
@@ -4169,187 +4169,205 @@ of a problem file that contains a top level call. Exits after completion of the 
 </td><td class="codes" /></tr><tr><td class="docs"><p>papers
 http://ieeexplore.ieee.org/xpl/freeabs_all.jsp?arnumber=350024
 http://www.springerlink.com/content/f5q4526300403127/</p>
-</td><td class="codes" /></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#ecopush.core" name="ecopush.core"><h1 class="project-name">ecopush.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Core file for ecopush</p>
-</td><td class="codes" /><pre class="brush: clojure">(ns ecopush.core
-  (:gen-class)
-  (:use [ecopush.push] [clojure.contrib.math]))</pre></tr><tr><td class="docs"><p>Globals</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>List of capacities for rounds. These are the odd numbers between 0 and 20.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
-  *capacity-list* (range 1 20 1))</pre></tr><tr><td class="docs"><p>The number of rounds is size of the capacity list, because each round represents a market entry game with a fixed capacity.</p>
-</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
-  *rounds-num* (count *capacity-list*)) ; the above is not true and should be fixed</pre></tr><tr><td class="docs"><p>population size (number of players in game</p>
-</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
-  *popsize* 10)</pre></tr><tr><td class="docs"><p>payoff for staying out</p>
-</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
-  *nonentry-payoff* 1)</pre></tr><tr><td class="docs"><p>Strategy record. Code is the actual code, and type specifies whether or not the code is clojure or push. Type can potentiall be extended to other jvm languages. type field can currently be either "push" or "clj". </p>
-</td><td class="codes" /><pre class="brush: clojure">(defrecord Strategy [code type])</pre></tr><tr><td class="docs"><p>Each player is a record. Player record has the fields number, choices, payoffs, capacity, code.</p>
-</td><td class="codes" /><pre class="brush: clojure">(defrecord Player [number choices payoffs capacity code])</pre></tr><tr><td class="docs"><p>(defstruct player :number :choices :payoffs :capacity :code)</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>deref registered instructions once so we don't have to do it all the time</p>
-</td><td class="codes" /><pre class="brush: clojure">(def reggie1 @registered-instructions)</pre></tr><tr><td class="docs"><p>Game</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>Handles exceptions when pulling off the :integer stack to produce 1,0.</p>
-
-<p>(player-logic) is expected to return a 1 or 0. However, pulling values off the :integer stack can return nil, so sanitize the input.
-Below is an example that returns 1 if the number is even, and 0 if it is odd. </p>
-</td><td class="codes" /><pre class="brush: clojure">(defn push-wrapper
-  [c]
-  (cond
-   (nil? c) 0
-   (neg? c) 0
-   (odd? c) 0
-   (even? c) 1))</pre></tr><tr><td class="docs"><p>player logic for push</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn push-strat
-  [player-code player-decisions all-decisions]
-  (push-wrapper
-   (top-item :integer
-	     (run-push
-	      player-code
-	      (->>
-	       (make-push-state)
-	       (push-item player-decisions :auxiliary) ; push player-decisions onto aux stack 
-	       (push-item all-decisions :auxiliary) ; push all-decisions onto aux stack 
-	       (push-item 1 :integer)
-	       (push-item 0 :integer))))))</pre></tr><tr><td class="docs"><p>Logic for players. If the player has a strategy in push, then run the push-code with push-strat.
-If the player has a clojure strategy, eval the strategy. Clojure strategies have access to player-decisions and all-decisions. </p>
-</td><td class="codes" /><pre class="brush: clojure">(defn player-logic [player-strategy player-decisions all-decisions]
-  "evaluates player code"
-  ;; (rand-int 2)
-  ;; (push-strat player-code player-decisions all-decisions)
-  (if  (= (:type player-strategy) "push")
-    (push-strat (:code player-strategy) player-decisions all-decisions)
-    (eval (:code playerstrategy))))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn create-players [popsize capacity pushlist]
-  "create the initial struct of players with empty keys. If pushlist is shorter than population size,
-rest of population has last element of pushlist"
-  (for [x (range 0 popsize)]
-     (Player. x [] [] capacity (nth pushlist x (last pushlist)))))</pre></tr><tr><td class="docs"><p>(struct-map player :number x :choices [] :payoffs [] :capacity capacity
-:code (cond <br />
-(&lt; (count pushlist) (inc x)) nil
-:else (nth pushlist x)))))</p>
-</td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn get-decisions
-  "returns list of all player decisions for past round"
-  [playerlist]
-  (map #(last (:choices %)) playerlist))</pre></tr><tr><td class="docs"><p>(map #(last (% :choices)) playerlist))</p>
-</td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn get-all-decisions
-  "returns list of all decisions for all players (before current round)"
-  [playerlist]
-  (map #(:choices %) playerlist))</pre></tr><tr><td class="docs"><p>(map #(% :choices) playerlist))</p>
-</td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn get-player-decisions
-  "returns a list of individual player's past decisions"
-  [playernum playerlist]
-  (-> playerlist get-all-decisions (nth playernum)))</pre></tr><tr><td class="docs"><p>(nth (get-all-decisions playerlist) playernum))</p>
-</td><td class="codes" /></tr><tr><td class="docs">
+</td><td class="codes" /></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#ecopush.regist" name="ecopush.regist"><h1 class="project-name">ecopush.regist</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Micah's registered instructions</p>
+</td><td class="codes" /><pre class="brush: clojure">(ns ecopush.regist
+  (:use [ecopush core push]))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn get-my-move
+  [data game round me]
+  (nth (:choices (first (filter #(= (:number %) me) (filter #(= (:capacity %) (-
+(* round 2) 1)) data)))) game))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn get-round
+  [data game round]
+  (map #(nth % game) (filter #(= (:capacity %) (- (* round 2) 1)) data)))</pre></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(defn payoff-sum
   "sum the player decisions with proper weights"
   [decisions capacity]
-  (+ 1 (* 2 (- capacity			; constants as def (from paper) 
-	       (apply + decisions)))))			; integrate other weights </pre></tr><tr><td class="docs"><p>check to see if this works</p>
-</td><td class="codes" /><pre class="brush: clojure">(defn apply-payoff			
-  "add the payoff to each player"
-  [payoff player-struct]
-  (->> (if (zero? (last (:choices player-struct))) *nonentry-payoff* payoff)
-       (update-in player-struct [:payoffs] conj)))</pre></tr><tr><td class="docs"><p>(letfn [(payply [x] (update-in player-struct [:payoffs] conj x))
-(decpay [] (if (zero? (last (:choices player-struct)))
-<em>nonentry-payoff</em>
-payoff))]
-(&rarr; decpay
-payply)))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(&rarr;>
-(if (zero? (last (:choices player-structs)))
-<em>nonentry-payoff</em>
-payoff)
-(update-in player-struct [:payoffs] conj))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(&rarr; player-structs
-(:choices)
-(last)
-(zero?))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(payply (decpay))
-(if (zero? (last (:choices player-struct)))
-(payply <em>nonentry-payoff</em>)
-(payply payoff))))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(payply
-(if (zero? (last (:choices player-struct)))
-<em>nonentry-payoff</em>
-payoff))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(if-let [pay (zero? (last (:choices player-struct)))]
-)
-(if (zero? (last (player-struct :choices)))
-(update-in player-struct [:payoffs] conj <em>nonentry-payoff</em>) ; do these better
-(update-in player-struct [:payoffs] conj payoff)))</p>
-</td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn calculate-payoff
-  "returns list of players with payoff applied"
-  [playerlist capacity]
-  (let [payoff (payoff-sum (get-decisions playerlist) capacity)]
-    (map #(apply-payoff payoff %) playerlist)))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn player-decide
-  "player decide working"
-  [player-structs]
-  (let [past-decisions (get-all-decisions player-structs)]
-    (map #(update-in % [:choices] conj (player-logic (:code %) (:choices %) past-decisions)) player-structs)))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn play-rounds
-  "function to play rounds. returns list of player structs"
-  [roundnum capacity & [pushlist]]
-  (cond
-   (zero? roundnum) (create-players *popsize* capacity pushlist)
-   :else (calculate-payoff
-	  (player-decide
-	   (play-rounds (dec roundnum) capacity pushlist))
-	  capacity)))</pre></tr><tr><td class="docs"><p>(defn tail-play-rounds [rn cap pl]
-(letfn [(pr
-[cur nxt rn]
-(if (zero? rn)
-(Player. [] [] <em>popsize</em> cap pl)
-)])
-(pr rn cap pl) <br />
-)</p>
-</td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn game
-  "returns list of players with payoffs and choices in list of rounds"
-  [pushlist]
-  (vec (flatten				; why is this a vec
-	(for [x *capacity-list*]
-	  (play-rounds *rounds-num* x pushlist)))))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(repeatedly *popsize* #(random-code 10 @registered-instructions)) </pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defrecord pushcoll [individuals errors total-error history ancestors])</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn make-pushcoll [& {:keys [individuals errors total-error history ancestors]
-			:or {individuals nil
-			     errors nil
-			     total-error nil
-			     history nil
-			     ancestors nil}}]
-  (pushcoll. individuals errors total-error history ancestors))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn scores-map
-  "return this players with their payoff scores for game"
-  [pushlist]
-  (let [data (game pushlist)]
-    (for [x (range *popsize*)]
-      (apply + (map #(apply + (:payoffs %)) (filter #(= (:number %) x) data))))))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn scores-map1
-  "return this players with their payoff scores for game"
-  [pushlist]
-  (let [data (game pushlist)]
-    (for [x (range *popsize*)]
-       (map #(apply + (:choices %)) (filter #(= (:number %) x) data)))))</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn average-payoff
-  "returns average payoff of players in game"
-  [pushlist]
-  (/ (apply + (scores-map pushlist)) *popsize*))</pre></tr><tr><td class="docs"><p>(pushgp
-:error-function (fn [program]
-(- 500 (average-payoff (repeat <em>popsize</em> program))))
-:max-points 100
-:population-size 50
-:trivial-geography-radius 10)</p>
-</td><td class="codes" /></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn winner-map
-  "returns the winners of the game sorted by payoffs. Key is player number, value is payoff total"
-  [pushlist]
-  (sort-by last >
-	   (let [data (game pushlist)]
-	     (for [x (range *popsize*)]
-	       [(keyword (str x)) (apply + (map #(apply + (:payoffs %)) (filter #(= (:number %) x) data)))])))) ; messy, clean w/ flatten </pre></tr><tr><td class="docs"><p>strategies ;;</p>
+  (+ 1 (* 2 (- capacity			; constants as def (from paper)
+	       (apply + decisions)))))			; integrate other weights</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn best-move
+  [data game round me]
+  (let [my-move (get-my-move data game round me)
+        moves (get-round data game round)]
+    (if (<
+          (if (= my-move 0) 1
+            (payoff-sum moves (- (* round 2) 1)))
+          (if (= my-move 1) 1
+          (payoff-sum (cons -1 moves) (- (* round 2) 1))))
+      my-move
+      (* (- my-move 1) -1))))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn pay-for-going-in
+  [data game round me]
+  (let[moves (get-round data game round)]
+      (if (= (get-my-move data game round me) 0)
+        (payoff-sum (cons -1 moves) (- (* round 2) 1))
+        (payoff-sum moves (- (* round 2) 1)))))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn average-pay-when-in
+  [data game1 game2 round me]
+  (let [dataset (for [x (range game1 (inc game2))]
+                  (pay-for-going-in data x round me))]
+        (/ (apply + dataset) (count dataset))))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered pay-for-going-in
+  (fn [state]
+    (if
+      (not (empty? (rest (:integer state))))
+      (push-item
+        (let
+          [data (stack-ref :auxiliary 0 state)
+           g (pop :integer state)
+           game (if (and (> g 0) (< (mod g (stack-ref :auxiliary 2 state))
+(stack-ref :auxiliary 2 state)))
+                    (mod g (stack-ref :auxiliary 2 state))
+                    0)
+           r (pop :integer state)
+           round (if (and (> r 0) (< (mod r 10) (stack-ref :auxiliary 1 state)))
+                   (mod r 10)
+                   0)
+           me (stack-ref :auxiliary 3 state)]
+          (if (or (= game 0) (= round 0))
+              0
+              (pay-for-going-in
+                data
+                game
+                round
+                me)))
+              :boolean state)
+      state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered average-pay-when-in
+  (fn [state]
+    (if
+      (not (empty? (rest (:integer state))))
+      (push-item
+        (let
+          [data (stack-ref :auxiliary 0 state)
+           g (stack-ref :auxiliary 2 state)
+           g1 (pop :integer state)
+           game1 (if (and (> g1 0) (< (mod g1 g) g))
+                   (mod g1 g)
+                   0)
+           g2 (pop :integer state)
+            game2 (if (and (> g2 0) (< (mod g2 g) g))
+                    (mod g2 g)
+                    0)
+            round (stack-ref :auxiliary  1 state)
+            me (stack-ref :auxiliary 3 state)]
+          (if (or (= game1 0) (= game2 0))
+            0
+            (average-pay-when-in
+              data
+              game1
+              game2
+              round
+              me)))
+      :boolean state)
+    state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered get-game-number
+  (fn [state]
+    (push-item
+      (stack-ref :auxiliary 2 state)
+        :integer state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered get-round-number
+  (fn [state]
+    (push-item
+        (stack-ref :auxiliary 1 state)
+        :integer state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered get-my-move-any
+  (fn [state]
+    (if
+      (not (empty? (rest (:integer state))))
+      (push-item
+        (let
+          [data (stack-ref :auxiliary 0 state)
+           g (pop :integer state)
+           game (if (and (> g 0) (< (mod g (stack-ref :auxiliary 2 state))
+(stack-ref :auxiliary 2 state)))
+                    (mod g (stack-ref :auxiliary 2 state))
+                    0)
+           r (pop :integer state)
+           round (if (and (> r 0) (< (mod r 10) (stack-ref :auxiliary 1 state)))
+                   (mod r 10)
+                   0)
+           me (stack-ref :auxiliary 3 state)]
+          (if (or (= game 0) (= round 0))
+              0
+              (get-my-move
+                data
+                game
+                round
+                me)))
+              :boolean state)
+      state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered get-my-move
+  (fn [state]
+    (if
+      (not (empty? (rest (:integer state))))
+      (push-item
+        (let
+          [data (stack-ref :auxiliary 0 state)
+           g (pop :integer state)
+           game (if (and (> g 0) (< (mod g (stack-ref :auxiliary 2 state))
+(stack-ref :auxiliary 2 state)))
+                    (mod g (stack-ref :auxiliary 2 state))
+                    0)
+           round (stack-ref :auxiliary 1 state)
+           me (stack-ref :auxiliary 3 state)]
+          (if (= game 0)
+              0
+              (get-my-move
+                data
+                game
+                round
+                me)))
+              :boolean state)
+      state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered best-move-any
+  (fn [state]
+    (if
+      (not (empty? (rest (:integer state))))
+      (push-item
+        (let
+          [data (stack-ref :auxiliary 0 state)
+           g (pop :integer state)
+           game (if (and (> g 0) (< (mod g (stack-ref :auxiliary 2 state))
+(stack-ref :auxiliary 2 state)))
+                    (mod g (stack-ref :auxiliary 2 state))
+                    0)
+           r (pop :integer state)
+           round (if (and (> r 0) (< (mod r 10) (stack-ref :auxiliary 1 state)))
+                   (mod r 10)
+                   0)
+           me (stack-ref :auxiliary 3 state)]
+          (if (or (= game 0) (= round 0))
+              0
+              (best-move
+                data
+                game
+                round
+                me)))
+              :boolean state)
+      state)))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(define-registered best-move
+  (fn [state]
+    (if
+      (not (empty? (rest (:integer state))))
+      (push-item
+        (let
+          [data (stack-ref :auxiliary 0 state)
+           g (pop :integer state)
+           game (if (and (> g 0) (< (mod g (stack-ref :auxiliary 2 state))
+(stack-ref :auxiliary 2 state)))
+                    (mod g (stack-ref :auxiliary 2 state))
+                    0)
+           round (stack-ref :auxiliary 1 state)
+           me (stack-ref :auxiliary 3 state)]
+          (if (= game 0)
+              0
+              (best-move
+                data
+                game
+                round
+                me)))
+              :boolean state)
+      state)))</pre></tr><tr><td class="docs"><p>strategies ;;</p>
 </td><td class="codes" /></tr><tr><td class="docs"><p>in strategies, don't vary the capacity but keeping same round number</p>
 </td><td class="codes" /></tr><tr><td class="docs"><p>(define-registered decision-info-me
 (fn [state]
@@ -4389,11 +4407,7 @@ payoff))</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn stoch-approx
   "calculates expected motion of player's strategy adjustment"
   []
-  nil)</pre></tr><tr><td class="docs">
-</td><td class="codes" /><pre class="brush: clojure">(defn -main [& args]
-  (println "test of main")
-  ;; (use (symbol (first args)))
-  (System/exit 0))</pre></tr><tr><td class="docs"><p>equilibria tests ;;</p>
+  nil)</pre></tr><tr><td class="docs"><p>equilibria tests ;;</p>
 </td><td class="codes" /></tr><tr><td class="docs">
 </td><td class="codes" /><pre class="brush: clojure">(defn eq-nash-pure?
   "returns whether game is pure Nash equilibrium"
@@ -4406,59 +4420,161 @@ payoff))</p>
 </td><td class="codes" /><pre class="brush: clojure">(defn eq-nash-asm?
   []
   "returns whether game is asymmetric mixed equilibria"
-  nil)</pre></tr><tr><td class="docs"><p>random push code
-(random-code 100 (concat @registered-instructions
-(list (fn [] (lrand-int 100))
-(fn [] (lrand)))))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(run-push '(1 1 integer<em>add integer</em>add) (&rarr;>
-(make-push-state)
-(push-item 3 :integer)
-(push-item 7 :integer)))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(first (:integer (run-push (random-code 100 @registered-instructions) (&rarr;>
-(make-push-state)
-(push-item 1 :integer)
-(push-item 0 :integer)))))
-(repeatedly 5 #(push-strat))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(repeatedly 10 #(random-code 10 @registered-instructions)) ; generate random players </p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>push ;;</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(define-registered out
-(fn [state]
-(let [astate (stack-ref :auxiliary 0 state)]
-(&rarr;> state
-(pop-item :auxiliary)
-(push-item 0 :auxiliary)))))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(define-registered in
-(fn [state]
-(let [astate (stack-ref :auxiliary 0 state)]
-(&rarr;> state
-(pop-item :auxiliary)
-(push-item 0 :auxiliary)))))</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>populate game with list of player code
-sum payoffs for each player
-(1/ (player.payoffsum / maxpossible.payoffsum)) * constant multiplier
-sum total mean payoff? (for collective)</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>are we selecting for a set of push players? - evolve collectively 
-are we selecting for one individual player? - evolve individually
-are we going to mix push programs and other strategies? -
-evolve individually / use beat other strategy as fitness function for collective
-population size? for collective vs. individual</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>reproduction - within game / across games</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>(defn gp-start
-[]
-(pushgp
+  nil)</pre></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr><tr><td class="docs"><div class="docs-header"><a class="anchor" href="#ecopush.core" name="ecopush.core"><h1 class="project-name">ecopush.core</h1><a class="toc-link" href="#toc">toc</a></a></div></td><td class="codes" /></tr><tr><td class="docs"><p>Core game for ecopush</p>
+</td><td class="codes" /><pre class="brush: clojure">(ns ecopush.core
+  (:use [ecopush.push]
+	[clojure.contrib.math])
+  (:gen-class))</pre></tr><tr><td class="docs"><p>Globals</p>
+</td><td class="codes" /></tr><tr><td class="docs"><p>List of capacities for rounds. These are the odd numbers between 0 and 20.</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
+  *capacity-list* (range 1 20 1))</pre></tr><tr><td class="docs"><p>The number of rounds is size of the capacity list, because each round represents a market entry game with a fixed capacity.</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
+  *rounds-num* (count *capacity-list*)) ; the above is not true and should be fixed</pre></tr><tr><td class="docs"><p>population size (number of players in game</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
+  *popsize* 10)</pre></tr><tr><td class="docs"><p>payoff for staying out</p>
+</td><td class="codes" /><pre class="brush: clojure">(def ^{:doc }
+  *nonentry-payoff* 1)</pre></tr><tr><td class="docs"><p>Strategy record.
+Code is the actual code, and type specifies whether or not the code is clojure or push.
+Type can potentiall be extended to other jvm languages. type field can currently be either "push" or "clj". </p>
+</td><td class="codes" /><pre class="brush: clojure">(defrecord Strategy [code type])</pre></tr><tr><td class="docs"><p>Each player is a record. </p>
+</td><td class="codes" /><pre class="brush: clojure">(defrecord Player [number choices payoffs capacity strategy])</pre></tr><tr><td class="docs"><p>Game</p>
+</td><td class="codes" /></tr><tr><td class="docs"><p>Handles exceptions when pulling off the :integer stack to produce 1,0.</p>
+
+<p>(player-logic) is expected to return a 1 or 0. However, pulling values off the :integer stack can return nil, so sanitize the input.
+Below is an example that returns 1 if the number is even, and 0 if it is odd. </p>
+</td><td class="codes" /><pre class="brush: clojure">(defn push-wrapper
+  [c]
+  (cond (not (number? c)) 0			; can return :no-stack-item for empty stack
+	(nil? c) 0
+	(neg? c) 0
+	(odd? c) 0
+	(even? c) 1))</pre></tr><tr><td class="docs"><p>player logic for push</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn push-strat
+  [player-code player-decisions all-decisions]
+  (push-wrapper (top-item :integer
+			  (run-push
+			   player-code
+			   (->>
+			    (make-push-state)
+			    (push-item player-decisions :auxiliary) ; push player-decisions onto aux stack 
+			    (push-item all-decisions :auxiliary) ; push all-decisions onto aux stack 
+			    (push-item 1 :integer)
+			    (push-item 0 :integer))))))</pre></tr><tr><td class="docs"><p>Logic for players. If the player has a strategy in push, then run the push-code with push-strat.
+If the player has a clojure strategy, eval the strategy.
+Clojure strategies have access to player-decisions and all-decisions. </p>
+</td><td class="codes" /><pre class="brush: clojure">(defn player-logic [player-strategy player-decisions all-decisions]
+  "Evaluates player strategy code based on strategy type"
+  (if (= (:type player-strategy) "push")
+    (push-strat (:code player-strategy) player-decisions all-decisions)
+    (eval (:code player-strategy))))</pre></tr><tr><td class="docs"><p>Pushlist is a list of strategy records</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn create-players [popsize capacity pushlist]
+  "Create the initial struct of players with empty keys. If pushlist is shorter than population size, rest of population has last element of pushlist"
+  (for [x (range 0 popsize)]
+    (let [xloc (nth pushlist x (last pushlist))]
+      (Player. x [] [] capacity (Strategy. (:code xloc) (:type xloc))))))</pre></tr><tr><td class="docs"><p>returns list of all player decisions for past round</p>
+
+<p>potentially catch nil as it may errors
+see (get-decisions) run after create players </p>
+</td><td class="codes" /><pre class="brush: clojure">(defn get-decisions
+  [playerlist]
+  (pmap #(last (:choices %)) playerlist))</pre></tr><tr><td class="docs"><p>returns list of all decisions before current round for all players</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn get-all-decisions
+  [playerlist]
+  (pmap #(:choices %) playerlist))</pre></tr><tr><td class="docs"><p>returns a list of individual player's past decisions</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn get-player-decisions
+  [playernum playerlist]
+  (-> playerlist get-all-decisions (nth playernum)))</pre></tr><tr><td class="docs"><p>sum the player decisions with proper weights</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn payoff-sum
+  [decisions capacity]
+  (+ 1 (* 2 (- capacity			; constants as def (from paper) 
+	       (apply + decisions)))))			; integrate other weights </pre></tr><tr><td class="docs"><p>add the payoff to each player</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn apply-payoff			
+  [payoff player-struct]
+  (->> (if (zero? (last (:choices player-struct))) *nonentry-payoff* payoff)
+       (update-in player-struct [:payoffs] conj)))</pre></tr><tr><td class="docs"><p>returns list of players with payoff applied</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn calculate-payoff
+  [playerlist capacity]
+  (let [payoff (payoff-sum (get-decisions playerlist) capacity)]
+    (pmap #(apply-payoff payoff %) playerlist)))</pre></tr><tr><td class="docs"><p>player decide working</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn player-decide
+  [playerlist]
+  (let [past-decisions (get-all-decisions playerlist)]
+    (pmap #(update-in % [:choices] conj (player-logic (:strategy %) (:choices %) past-decisions)) playerlist)))</pre></tr><tr><td class="docs"><p>function to play rounds. returns list of player structs</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn play-rounds
+  [roundnum capacity & [pushlist]]
+  (cond
+   (zero? roundnum) (create-players *popsize* capacity pushlist)
+   :else (calculate-payoff
+	  (player-decide
+	   (play-rounds (dec roundnum) capacity pushlist))
+	  capacity)))</pre></tr><tr><td class="docs"><p>returns list of players with payoffs and choices in list of rounds</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn game
+  [pushlist]
+  (flatten				
+   (for [x *capacity-list*]
+     (play-rounds *rounds-num* x pushlist))))</pre></tr><tr><td class="docs"><p>return the players with their payoff scores for game</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn scores-map
+  [pushlist]
+  (let [data (game pushlist)]
+    (for [x (range *popsize*)]
+      (apply + (pmap #(apply + (:payoffs %)) (filter #(= (:number %) x) data)))))
+;; (defn fit
+;;   [prog]
+;;   (list (* 10
+;;      (first (scores-map (cons (Strategy. prog "push") (repeatedly 1 #(Strategy. (quote (rand-int 2)) "clj"))))))))
+;; (doall
+;;  (list (let [scores (scores-map (cons (Strategy. prog "push") (repeatedly 1 #(Stragegy. (quote (rand-int 2)) "clj"))))
+;; 	     best (apply max scores)
+;; 	     gpres (first scores)]
+;; 	 (* 100 (- best gpres)))))
+;; (defn fit
+;;   [prog]
+;;   1000)
+;; (defn fit
+;;   [program]
+;;   (count (scores-map (lazy-cat (repeatedly 1 #(Strategy. program "push")) (take (dec *popsize*) (repeatedly #(Strategy. (quote (rand-int 2)) "clj")))))))
+  (defn fit				;should wrap fn
+    "preliminary fitness function"
+    [program]
+    (doall
+     (let [scores (scores-map (cons (Strategy. program "push") (repeatedly 1 #(Strategy. (quote (rand-int 2)) "clj"))))
+	   best (apply max scores)
+	   gpscore (first scores)]
+       (list (* 100 (- best gpscore)))))))</pre></tr><tr><td class="docs"><p>(pushgp
 :error-function (fn [program]
-(map #(- 3000 %) (scores-map))))
+(doall
+(let [scores (scores-map (cons (Strategy. program "push") (repeatedly 1 #(Strategy. (quote (rand-int 2)) "clj"))))
+best (apply max scores)
+gpres (first scores)]
+(list (* 100 (- best gpres))))))
 :atom-generators (concat
 (registered-for-type :integer)
 (registered-for-type :exec)
-(registered-for-type :boolean)
-(list
-'boolean_and
-'boolean_not
-'boolean_or))
-:error-threshold 40
-:reproduction-simplifications 10)</p>
-</td><td class="codes" /></tr><tr><td class="docs"><p>push ;;</p>
+(registered-for-type :auxiliary))
+:population-size 10
+:mutation-probability 0.45
+:crossover-probability 0.45
+:simplification-probability 0.0
+:reproductive-simplifications 10)</p>
+</td><td class="codes" /></tr><tr><td class="docs"><p>return this players with their payoff scores for game</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn scores-map1
+  [pushlist]
+  (let [data (game pushlist)]
+    (for [x (range *popsize*)]
+       (map #(apply + (:choices %)) (filter #(= (:number %) x) data)))))</pre></tr><tr><td class="docs"><p>returns average payoff of players in game</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn average-payoff
+  [pushlist]
+  (/ (apply + (scores-map pushlist)) *popsize*))</pre></tr><tr><td class="docs"><p>returns the winners of the game sorted by payoffs. Key is player number, value is payoff total</p>
+</td><td class="codes" /><pre class="brush: clojure">(defn winner-map
+  [pushlist]
+  (sort-by last >
+	   (let [data (game pushlist)]
+	     (for [x (range *popsize*)]
+	       [(keyword (str x)) (apply + (map #(apply + (:payoffs %)) (filter #(= (:number %) x) data)))])))) ; messy, clean w/ flatten </pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(defn -main [& args]
+  (println "test of main")
+  ;; (use (symbol (first args)))
+  (System/exit 0))</pre></tr><tr><td class="docs"><p>push ;;</p>
 </td><td class="codes" /></tr><tr><td class="docs"><p>http://techbehindtech.com/2010/06/25/parsing-xml-in-clojure/
 http://stackoverflow.com/questions/4641964/how-to-use-update-in-in-clojure
 above is update-in
@@ -4495,5 +4611,16 @@ juxt - http://richhickey.github.com/clojure/clojure.core-api.html#clojure.core/j
 	    (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; player-decisions
 	    (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; all-decisions			  
 	    (push-item 1 :integer)
-	    (push-item 0 :integer))))</pre></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_ecopush.push">ecopush.push</li><li class="floating-toc-li" id="floating-toc_ecopush.core">ecopush.core</li><li class="floating-toc-li" id="floating-toc_ecopush.demo">ecopush.demo</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
+	    (push-item 0 :integer))))</pre></tr><tr><td class="docs"><p>create-players demos</p>
+</td><td class="codes" /></tr><tr><td class="docs"><p>create player list all with random push stragies</p>
+</td><td class="codes" /><pre class="brush: clojure">(create-players 7 3 (repeatedly 7 #(Strategy. (random-code 10 @registered-instructions) "push")))</pre></tr><tr><td class="docs"><p>create player list with mix of clojure and push strategies</p>
+</td><td class="codes" /><pre class="brush: clojure">(create-players 4 3 (cons (Strategy. (quote (rand-int 2)) "clj")
+			  (repeatedly 3 #(Strategy. (random-code 10 @registered-instructions) "push"))))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(cons (repeatedly 3 #(Strategy. (random-code 10 @registered-instructions) "push")) (Strategy. (quote (rand-int 2)) "clj"))</pre></tr><tr><td class="docs"><p>play a game as combination of strategies</p>
+</td><td class="codes" /><pre class="brush: clojure">(game (lazy-cat (repeatedly 3 #(Strategy. (quote (rand-int 2)) "clj")) (repeatedly 3 #(Strategy. (random-code 10 @registered-instructions) "push"))))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(lazy-cat (repeatedly 3 #(Strategy. (quote (rand-int 2)) "clj")) (repeat 1 (Strategy. (random-code 10 @registered-instructions) "push")))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(cat (Strategy. 'program "push") (Strategy. (quote (rand-int 2))))
+(cons (repeat 1 (Strategy. nil "push")) (repeat (Strategy. (quote (rand-int 2)))))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(lazy-cat (repeatedly 1 #(Strategy. nil "push")) (repeatedly #(Strategy. (quote (rand-int 2)) "clj")))</pre></tr><tr><td class="docs">
+</td><td class="codes" /><pre class="brush: clojure">(lazy-cat (repeatedly 1 #(Strategy. nil "push")) (take (dec *popsize*) (repeatedly #(Strategy. (quote (rand-int 2)) "clj"))))</pre></tr><tr><td class="spacer docs">&nbsp;</td><td class="codes" /></tr></table><div class="footer">Generated by <a href="https://github.com/fogus/marginalia">Marginalia</a>.&nbsp;&nbsp;Syntax highlighting provided by Alex Gorbatchev's <a href="http://alexgorbatchev.com/SyntaxHighlighter/">SyntaxHighlighter</a><div id="floating-toc"><ul><li class="floating-toc-li" id="floating-toc_ecopush.push">ecopush.push</li><li class="floating-toc-li" id="floating-toc_ecopush.regist">ecopush.regist</li><li class="floating-toc-li" id="floating-toc_ecopush.core">ecopush.core</li><li class="floating-toc-li" id="floating-toc_ecopush.demo">ecopush.demo</li></ul></div></div><script type="text/javascript">SyntaxHighlighter.defaults['gutter'] = false;
        SyntaxHighlighter.all()</script></body></html>
