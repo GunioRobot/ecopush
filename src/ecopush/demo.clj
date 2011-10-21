@@ -5,29 +5,29 @@
 ;;; push-strat demos
 
 (push-strat
- (random-code 10 @registered-instructions) ; randomly generate push code 
- (vec (repeatedly 10 #(rand-int 2)))	; random player-decisions   
+ (random-code 10 @registered-instructions) ; randomly generate push code
+ (vec (repeatedly 10 #(rand-int 2)))	; random player-decisions
  (vec (repeatedly 10 #(rand-int 2))))	; random all-decisions
 
-;;; look at the auxiliary stack 
+;;; look at the auxiliary stack
 (:auxiliary
- (run-push 
+ (run-push
   (random-code 10 @registered-instructions)
   (->>
    (make-push-state)
    (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; player-decisions
-   (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; all-decisions			  
+   (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; all-decisions
    (push-item 1 :integer)
    (push-item 0 :integer))))
 
-;;; look at top item of auxiliary stack 
+;;; look at top item of auxiliary stack
 (top-item :auxiliary
-	  (run-push 
+	  (run-push
 	   (random-code 10 @registered-instructions)
 	   (->>
 	    (make-push-state)
 	    (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; player-decisions
-	    (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; all-decisions			  
+	    (push-item (vec (repeatedly 10 #(rand-int 2))) :auxiliary) ; all-decisions
 	    (push-item 1 :integer)
 	    (push-item 0 :integer))))
 
@@ -63,7 +63,7 @@
 ;;; play game with three strategies
 (map #(scores-map %) (stratmap (random-code 10 @registered-instructions) (list (quote (rand-int 2)) 1 0)))
 
-;;; get payoffs for each game 
+;;; get payoffs for each game
 (map #(apply + %) (gametest (random-code 10 @registered-instructions) (list (quote (rand-int 2)) 1 0)))
 
 ;;; make a map of games
@@ -105,7 +105,7 @@
 	      (let [xloc (nth pushlist x (last pushlist))]
 		(->> (Strategy. (:code xloc) (:type xloc))
 		     (Player. x [] [] capacity)))))
-	  ;; get current player decisions 
+	  ;; get current player decisions
 	  (get-decisions [playerlist]
 	    (map #(last (:choices %)) playerlist))
 	  ;; get all player decisions
@@ -114,7 +114,7 @@
 	  ;; get specific player decisions
 	  (get-player-decisions [playernum playerlist]
 	    (-> playerlist get-all-decisions (nth playernum)))
-	  ;; sum payoff value 
+	  ;; sum payoff value
 	  (payoff-sum [decisions capacity]
 	    (+ 1 (* 2 (- capacity (apply + decisions)))))
 	  (apply-payoff [payoff player-struct]
@@ -143,7 +143,7 @@
 (defn fit-fn
   [stratlist]
   (fn [program]
-    (letfn [(sm [pushprog cljstrat]	
+    (letfn [(sm [pushprog cljstrat]
 	      (cons (Strategy. pushprog "push")
 		    (repeatedly 1 #(Strategy. cljstrat "clj"))))
 	    (stratmap [pushprog stratlist]
@@ -167,7 +167,7 @@
 (defn run [params]
   (let [popsize (:population params)
 	caplist (:capacities params)
-	stratlist (:strategies params)]	; gamelist should be a list of strategies 
+	stratlist (:strategies params)]	; gamelist should be a list of strategies
     (pushgp
      :error-function (fit-fn stratlist)
      :atom-generators (concat
@@ -185,12 +185,12 @@
 
 (defn mf1 [pc pd ad c popsize]
   (let [fad (partition pd ad)]
-    
+
     (
 
      (for [x (range *popsize*)]
       (apply + (map #(nth % x fad) pd))))
-    
+
 
     ))
 

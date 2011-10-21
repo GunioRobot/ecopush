@@ -64,7 +64,7 @@
   [plist c]
   (shuffle plist)
   (let [N (count plist)
-	j (rand-nth (range (dec c))) 
+	j (rand-nth (range (dec c)))
 	k (rand-nth (range (- N c)))
 	r (- N j k)]
     (flatten (cons (repeat j 1)
@@ -124,7 +124,7 @@
    (+ (previous-propensity 0)
       v)))
 
-;;; round needs to be loaded 
+;;; round needs to be loaded
 (defn activation
   [value]
   (if (not (number? value))

@@ -20,16 +20,16 @@
 
 ;;; Strategy record.
 ;; Code is the actual code, and type specifies whether or not the code is clojure or push.
-;; Type can potentiall be extended to other jvm languages. type field can currently be either "push" or "clj". 
+;; Type can potentiall be extended to other jvm languages. type field can currently be either "push" or "clj".
 (defrecord Strategy [code type])
 
-;;; Each player is a record. 
+;;; Each player is a record.
 (defrecord Player [number choices payoffs capacity strategy])
 
 ;;; Game
 
 ;;; (player-logic) is expected to return a 1 or 0. However, pulling values off the :integer stack can return nil, so sanitize the input.
-;;; Below is an example that returns 1 if the number is even, and 0 if it is odd. 
+;;; Below is an example that returns 1 if the number is even, and 0 if it is odd.
 (defn push-wrapper
   "Handles exceptions when pulling off the :integer stack to produce 1,0."
   [c]
@@ -47,14 +47,14 @@
 			   player-code
 			   (->>
 			    (make-push-state)
-			    (push-item player-decisions :auxiliary) ; push player-decisions onto aux stack 
-			    (push-item all-decisions :auxiliary) ; push all-decisions onto aux stack 
+			    (push-item player-decisions :auxiliary) ; push player-decisions onto aux stack
+			    (push-item all-decisions :auxiliary) ; push all-decisions onto aux stack
 			    (push-item 1 :integer)
 			    (push-item 0 :integer))))))
 
 ;;; Logic for players. If the player has a strategy in push, then run the push-code with push-strat.
 ;; If the player has a clojure strategy, eval the strategy.
-;; Clojure strategies have access to player-decisions and all-decisions. 
+;; Clojure strategies have access to player-decisions and all-decisions.
 (defn player-logic [player-strategy player-decisions all-decisions]
   "Evaluates player strategy code based on strategy type"
   (if (= (:type player-strategy) "push")
@@ -69,7 +69,7 @@
       (Player. x [] [] capacity (Strategy. (:code xloc) (:type xloc))))))
 
 ;;; potentially catch nil as it may errors
-;;; see (get-decisions) run after create players 
+;;; see (get-decisions) run after create players
 (defn get-decisions
   "returns list of all player decisions for past round"
   [playerlist]
@@ -88,10 +88,10 @@
 (defn payoff-sum
   "sum the player decisions with proper weights"
   [decisions capacity]
-  (+ 1 (* 2 (- capacity			; constants as def (from paper) 
-	       (apply + decisions)))))			; integrate other weights 
+  (+ 1 (* 2 (- capacity			; constants as def (from paper)
+	       (apply + decisions)))))			; integrate other weights
 
-(defn apply-payoff			
+(defn apply-payoff
   "add the payoff to each player"
   [payoff player-struct]
   (->> (if (zero? (last (:choices player-struct))) *nonentry-payoff* payoff)
@@ -132,7 +132,7 @@
 (defn game
   "returns list of players with payoffs and choices in list of rounds"
   [pushlist]
-  (flatten				
+  (flatten
    (for [x *capacity-list*]
      (play-rounds *rounds-num* x pushlist))))
 
@@ -158,7 +158,7 @@
 (defn stratmap
   "maps sm onto strategy list"
   [pushprog stratlist]
-  (pmap #(sm pushprog %) stratlist))	; weird list stuff here (quote the list and then quote each element) 
+  (pmap #(sm pushprog %) stratlist))	; weird list stuff here (quote the list and then quote each element)
 
 (defn gametest
   "test games"
@@ -192,7 +192,7 @@
 (defn fit-fn
   [stratlist]
   (fn [program]
-    (letfn [(sm [pushprog cljstrat]	
+    (letfn [(sm [pushprog cljstrat]
 	      (cons (Strategy. pushprog "push")
 		    (repeatedly 1 #(Strategy. cljstrat "clj"))))
 	    (stratmap [pushprog stratlist]
@@ -248,7 +248,7 @@
 ;; http://stackoverflow.com/questions/4641964/how-to-use-update-in-in-clojure
 ;; above is update-in
 ;; http://java.ociweb.com/mark/clojure/article.html
-;; maarten kaijser - efficiently representing populations in genetic programming 
+;; maarten kaijser - efficiently representing populations in genetic programming
 ;; todo
 ;;; build in changing capacity [just mod total number of rounds or tmi?]
 ;;; build game around it

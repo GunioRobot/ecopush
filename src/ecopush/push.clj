@@ -5,7 +5,7 @@
 	    [clojure.walk :as walk]
 	    [clojure.contrib.string :as string]))
 
-(defn bt 
+(defn bt
   "backtrace abbreviation, to ease debugging"
   []
   (.printStackTrace *e))
@@ -77,12 +77,12 @@ The order of the numbers is not random (you may want to shuffle it)."
       (if (fn? element)
         (element)
         element))
-    (let [elements-this-level 
+    (let [elements-this-level
           (shuffle (decompose (dec points) (dec points)))]
       (doall (map (fn [size] (random-code-with-size size atom-generators))
                elements-this-level)))))
 
-(defn random-code 
+(defn random-code
   "Returns a random expression with size limited by max-points."
   [max-points atom-generators]
   (random-code-with-size (inc (lrand-int max-points)) atom-generators))
@@ -96,7 +96,7 @@ The order of the numbers is not random (you may want to shuffle it)."
     thing
     (list thing)))
 
-(defn print-return 
+(defn print-return
   "Prints the provided thing and returns it."
   [thing]
   (println thing)
@@ -106,25 +106,25 @@ The order of the numbers is not random (you may want to shuffle it)."
   "Returns a version of n that obeys limit parameters."
   [n]
   (if (integer? n)
-    (cond 
+    (cond
       (> n max-number-magnitude) max-number-magnitude
       (< n (- max-number-magnitude)) (- max-number-magnitude)
       :else n)
-    (cond 
+    (cond
       (> n max-number-magnitude) (* 1.0 max-number-magnitude)
       (< n (- max-number-magnitude)) (* 1.0 (- max-number-magnitude))
       (and (< n min-number-magnitude) (> n (- min-number-magnitude))) 0.0
       :else n)))
 
-(defn count-points 
-  "Returns the number of points in tree, where each atom and each pair of parentheses 
+(defn count-points
+  "Returns the number of points in tree, where each atom and each pair of parentheses
 counts as a point."
   [tree]
   (if (seq? tree)
     (inc (apply + (map count-points tree)))
     1))
 
-(defn code-at-point 
+(defn code-at-point
   "Returns a subtree of tree indexed by point-index in a depth first traversal."
   [tree point-index]
   (let [index (mod (math/abs point-index) (count-points tree))
@@ -134,7 +134,7 @@ counts as a point."
         (zip/node z)
         (recur (zip/next z) (dec i))))))
 
-(defn insert-code-at-point 
+(defn insert-code-at-point
   "Returns a copy of tree with the subtree formerly indexed by
 point-index (in a depth-first traversal) replaced by new-subtree."
   [tree point-index new-subtree]
@@ -145,7 +145,7 @@ point-index (in a depth-first traversal) replaced by new-subtree."
         (zip/root (zip/replace z new-subtree))
         (recur (zip/next z) (dec i))))))
 
-(defn remove-code-at-point 
+(defn remove-code-at-point
   "Returns a copy of tree with the subtree formerly indexed by
 point-index (in a depth-first traversal) removed. If removal would
 result in an empty list then it is not performed. (NOTE: this is different
@@ -163,7 +163,7 @@ from the behavior in other implementations of Push.)"
                 (= 1 (count (zip/node z))))
             (zip/root z) ;(zip/remove z))
             (recur (zip/next z) (dec i))))))))
-  
+
 (defn truncate
   "Returns a truncated integer version of n."
   [n]
@@ -172,16 +172,16 @@ from the behavior in other implementations of Push.)"
     (math/round (math/floor n))))
 
 (defn subst
-  "Returns the given list but with all instances of that (at any depth)                                   
+  "Returns the given list but with all instances of that (at any depth)
 replaced with this. Read as 'subst this for that in list'. "
   [this that lst]
   (walk/postwalk-replace {that this} lst))
 
-(defn contains-subtree 
+(defn contains-subtree
   "Returns true if tree contains subtree at any level. Inefficient but
 functional implementation."
   [tree subtree]
-  (or 
+  (or
     (= tree subtree)
     (not (= tree (subst (gensym) subtree tree)))))
 
@@ -191,7 +191,7 @@ subtree of tree that contains but is not equal to the first instance of
 subtree. For example, (contining-subtree '(b (c (a)) (d (a))) '(a)) => (c (a)).
 Returns nil if tree does not contain subtree."
   [tree subtree]
-  (cond 
+  (cond
     (not (seq? tree)) nil
     (empty? tree) nil
     (some #{subtree} tree) tree
@@ -212,8 +212,8 @@ Recursion in implementation could be improved."
   "Returns a measure of the discrepancy between list1 and list2. This will
 be zero if list1 and list2 are equal, and will be higher the 'more different'
 list1 is from list2. The calculation is equivalent to the following:
-1. Construct a list of all of the unique items in both of the lists. Sublists 
-   and atoms all count as items.                               
+1. Construct a list of all of the unique items in both of the lists. Sublists
+   and atoms all count as items.
 2. Initialize the result to zero.
 3. For each unique item increment the result by the difference between the
    number of occurrences of the item in list1 and the number of occurrences
@@ -235,7 +235,7 @@ list1 is from list2. The calculation is equivalent to the following:
 ;; states, stacks, and instructions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; 20101017 
+;; 20101017
 ;; record-based states, should be faster but aren't measurably so (see measurements)
 ;; reverting to structs for greater flexibility in use of state as map
 
@@ -245,7 +245,7 @@ list1 is from list2. The calculation is equivalent to the following:
 ;  (read-string (name kwd)))
 ;
 ;(defmacro define-push-state-record-type []
-;  "Defines the pushstate record type. The odd trick with read-string was a hack to 
+;  "Defines the pushstate record type. The odd trick with read-string was a hack to
 ;avoid namespace qualification on the pushstate symbol."
 ;  `(defrecord ~(read-string "pushstate") [~@(map keyword->symbol push-types)]))
 ;
@@ -286,7 +286,7 @@ list1 is from list2. The calculation is equivalent to the following:
 
 (def registered-instructions (atom ()))
 
-(defn register-instruction 
+(defn register-instruction
   "Add the provided name to the global list of registered instructions."
   [name]
   (swap! registered-instructions conj name))
@@ -312,7 +312,7 @@ not for use in Push programs."
   (assoc state type (cons value (type state))))
 
 (defn top-item
-  "Returns the top item of the type stack in state. Returns :no-stack-item if called on 
+  "Returns the top item of the type stack in state. Returns :no-stack-item if called on
 an empty stack. This is a utility, not for use as an instruction in Push programs."
   [type state]
   (let [stack (type state)]
@@ -321,7 +321,7 @@ an empty stack. This is a utility, not for use as an instruction in Push program
       (first stack))))
 
 (defn stack-ref
-  "Returns the indicated item of the type stack in state. Returns :no-stack-item if called 
+  "Returns the indicated item of the type stack in state. Returns :no-stack-item if called
 on an empty stack. This is a utility, not for use as an instruction in Push programs.
 NOT SAFE for invalid positions."
   [type position state]
@@ -331,7 +331,7 @@ NOT SAFE for invalid positions."
       (nth stack position))))
 
 ;; (defn stack-ref
-;;   "Returns the indicated item of the type stack in state. Returns :no-stack-item if called 
+;;   "Returns the indicated item of the type stack in state. Returns :no-stack-item if called
 ;; on an empty stack. This is a utility, not for use as an instruction in Push programs. Will
 ;; cycle through stack if position is past stack depth"
 ;;   [type position state]
@@ -366,7 +366,7 @@ not for use as an instruction in Push programs."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; instructions for all types (except auxiliary and tag)
 
-(defn popper 
+(defn popper
   "Returns a function that takes a state and pops the appropriate stack of the state."
   [type]
   (fn [state] (pop-item type state)))
@@ -378,8 +378,8 @@ not for use as an instruction in Push programs."
 (define-registered boolean_pop (popper :boolean))
 (define-registered zip_pop (popper :zip))
 
-(defn duper 
-  "Returns a function that takes a state and duplicates the top item of the appropriate 
+(defn duper
+  "Returns a function that takes a state and duplicates the top item of the appropriate
 stack of the state."
   [type]
   (fn [state]
@@ -394,15 +394,15 @@ stack of the state."
 (define-registered boolean_dup (duper :boolean))
 (define-registered zip_dup (duper :zip))
 
-(defn swapper 
-  "Returns a function that takes a state and swaps the top 2 items of the appropriate 
+(defn swapper
+  "Returns a function that takes a state and swaps the top 2 items of the appropriate
 stack of the state."
   [type]
   (fn [state]
     (if (not (empty? (rest (type state))))
       (let [first-item (stack-ref type 0 state)
             second-item (stack-ref type 1 state)]
-        (->> (pop-item type state) 
+        (->> (pop-item type state)
           (pop-item type)
           (push-item first-item type)
           (push-item second-item type)))
@@ -415,8 +415,8 @@ stack of the state."
 (define-registered boolean_swap (swapper :boolean))
 (define-registered zip_swap (swapper :zip))
 
-(defn rotter 
-  "Returns a function that takes a state and rotates the top 3 items of the appropriate 
+(defn rotter
+  "Returns a function that takes a state and rotates the top 3 items of the appropriate
 stack of the state."
   [type]
   (fn [state]
@@ -452,8 +452,8 @@ stack of the state."
 (define-registered boolean_flush (flusher :boolean))
 (define-registered zip_flush (flusher :zip))
 
-(defn eqer 
-  "Returns a function that compares the top two items of the appropriate stack of 
+(defn eqer
+  "Returns a function that compares the top two items of the appropriate stack of
 the given state."
   [type]
   (fn [state]
@@ -473,7 +473,7 @@ the given state."
 (define-registered zip_eq (eqer :zip))
 
 (defn stackdepther
-  "Returns a function that pushes the depth of the appropriate stack of the 
+  "Returns a function that pushes the depth of the appropriate stack of the
 given state."
   [type]
   (fn [state]
@@ -500,8 +500,8 @@ using the top integer to indicate how deep."
             with-index-popped (pop-item :integer state)
             actual-index (max 0 (min raw-index (- (count (type with-index-popped)) 1)))
             item (stack-ref type actual-index with-index-popped)
-            with-item-pulled (assoc with-index-popped 
-                               type 
+            with-item-pulled (assoc with-index-popped
+                               type
                                (let [stk (type with-index-popped)]
                                  (concat (take actual-index stk)
                                    (rest (drop actual-index stk)))))]
@@ -593,8 +593,8 @@ integer to indicate how deep."
 (define-registered code_rand
   (fn [state]
     (if (not (empty? (:integer state)))
-      (push-item (random-code (math/abs (mod (stack-ref :integer 0 state) 
-                                          max-points-in-random-expressions)) 
+      (push-item (random-code (math/abs (mod (stack-ref :integer 0 state)
+                                          max-points-in-random-expressions))
                    @global-atom-generators)
         :code
         (pop-item :integer state))
@@ -691,7 +691,7 @@ nothing if the denominator would be zero."
 (define-registered float_mod (modder :float))
 
 (defn lessthaner
-  "Returns a function that pushes the result of < of the top two items onto the 
+  "Returns a function that pushes the result of < of the top two items onto the
 boolean stack."
   [type]
   (fn [state]
@@ -707,7 +707,7 @@ boolean stack."
 (define-registered float_lt (lessthaner :float))
 
 (defn greaterthaner
-  "Returns a function that pushes the result of > of the top two items onto the 
+  "Returns a function that pushes the result of > of the top two items onto the
 boolean stack."
   [type]
   (fn [state]
@@ -913,7 +913,7 @@ boolean stack."
 (define-registered code_do
   (fn [state]
     (if (not (empty? (:code state)))
-      (push-item (stack-ref :code 0 state) 
+      (push-item (stack-ref :code 0 state)
         :exec
         (push-item 'code_pop :exec state))
       state)))
@@ -951,7 +951,7 @@ boolean stack."
         (push-item to-do :exec (push-item current-index :integer continuation)))
       state)))
 
-(define-registered exec_do*range 
+(define-registered exec_do*range
   (fn [state] ; Differs from code.do*range only in the source of the code and the recursive call.
     (if (not (or (empty? (:exec state))
                (empty? (rest (:integer state)))))
@@ -986,8 +986,8 @@ boolean stack."
       state)))
 
 (define-registered exec_do*count
-  ;; differs from code.do*count only in the source of the code and the recursive call    
-  (fn [state] 
+  ;; differs from code.do*count only in the source of the code and the recursive call
+  (fn [state]
     (if (not (or (empty? (:integer state))
                (< (first (:integer state)) 1)
                (empty? (:exec state))))
@@ -1001,8 +1001,8 @@ boolean stack."
     (if (not (or (empty? (:integer state))
                (< (first (:integer state)) 1)
                (empty? (:code state))))
-      (push-item (list 0 (dec (first (:integer state))) 'code_quote 
-                   (cons 'integer_pop 
+      (push-item (list 0 (dec (first (:integer state))) 'code_quote
+                   (cons 'integer_pop
                      (ensure-list (first (:code state)))) 'code_do*range)
         :exec
         (pop-item :integer (pop-item :code state)))
@@ -1037,7 +1037,7 @@ boolean stack."
       state)))
 
 (defn codemaker
-  "Returns a function that pops the stack of the given type and pushes the result on 
+  "Returns a function that pops the stack of the given type and pushes the result on
 the code stack."
   [type]
   (fn [state]
@@ -1109,7 +1109,7 @@ the code stack."
 (define-registered code_member
   (fn [state]
     (if (not (empty? (rest (:code state))))
-      (push-item (not (not (some #{(first (rest (:code state)))} 
+      (push-item (not (not (some #{(first (rest (:code state)))}
                              (ensure-list (first (:code state))))))
         :boolean
         (pop-item :code (pop-item :code state)))
@@ -1135,7 +1135,7 @@ the code stack."
     (if (not (or (empty? (:integer state))
                (empty? (:code state))
                (empty? (ensure-list (first (:code state))))))
-      (push-item (drop (mod (math/abs (first (:integer state))) 
+      (push-item (drop (mod (math/abs (first (:integer state)))
                          (count (ensure-list (first (:code state)))))
                    (ensure-list (first (:code state))))
         :code
@@ -1157,7 +1157,7 @@ the code stack."
       (push-item (count-points (first (:code state)))
         :integer
         (pop-item :code state))
-      state))) 
+      state)))
 
 (define-registered code_extract
   (fn [state]
@@ -1254,8 +1254,8 @@ the code stack."
               :exec
               (push-item (list y z)
                 :exec
-                (pop-item :exec 
-                  (pop-item :exec 
+                (pop-item :exec
+                  (pop-item :exec
                     (pop-item :exec state))))))
           state))
       state)))
@@ -1405,9 +1405,9 @@ acting as a no-op if the movement would produce an error."
 (flush)
 
 ;; also set default value for atom-generators
-(reset! global-atom-generators 
+(reset! global-atom-generators
   (concat @registered-instructions
-    (list 
+    (list
       (fn [] (lrand-int 100))
       (fn [] (lrand)))))
 
@@ -1415,9 +1415,9 @@ acting as a no-op if the movement would produce an error."
 ;; tag pseudo-instructions ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn tag-instruction? 
+(defn tag-instruction?
   [i]
-  (and (symbol? i) 
+  (and (symbol? i)
     (or
       (.startsWith (name i) "tag")
       (.startsWith (name i) "untag"))))
@@ -1435,15 +1435,15 @@ in the given state."
 (defn handle-tag-instruction
   "Executes the tag instruction i in the state. Tag instructions take one of
 the following forms:
-  tag_<type>_<number> 
+  tag_<type>_<number>
      create tage/value association, with the value taken from the stack
      of the given type and the number serving as the tag
   untag_<number>
      remove the association for the closest-matching tag
-  tagged_<number> 
+  tagged_<number>
      push the value associated with the closest-matching tag onto the
      exec stack (or no-op if no associations).
-  tagged_code_<number> 
+  tagged_code_<number>
      push the value associated with the closest-matching tag onto the
      code stack (or no-op if no associations).
 "
@@ -1451,14 +1451,14 @@ the following forms:
   (let [iparts (string/partition #"_" (name i))]
     (cond
       ;; if it's of the form tag_<type>_<number>: CREATE TAG/VALUE ASSOCIATION
-      (= (first iparts) "tag") 
+      (= (first iparts) "tag")
       (let [source-type (read-string (str ":" (nth iparts 2)))
             the-tag (read-string (nth iparts 4))]
         (if (empty? (source-type state))
           state
           (pop-item source-type
             (assoc state :tag (assoc (or (:tag state) (sorted-map))
-                                the-tag 
+                                the-tag
                                 (first (source-type state)))))))
       ;; if it's of the form untag_<number>: REMOVE TAG ASSOCIATION
       (= (first iparts) "untag")
@@ -1478,7 +1478,7 @@ the following forms:
 
 (defn tag-instruction-erc
   "Returns a function which, when called on no arguments, returns a symbol of the form
-tag_<type>_<number> where type is one of the specified types and number is in the range 
+tag_<type>_<number> where type is one of the specified types and number is in the range
 from 0 to the specified limit (exclusive)."
   [types limit]
   (fn [] (symbol (str "tag_"
@@ -1530,14 +1530,14 @@ tagged_code_<number> where number is in the range from 0 to the specified limit 
   (if (not instruction) ;; tests for nil and ignores it
     state
     (let [literal-type (recognize-literal instruction)]
-      (cond 
+      (cond
         literal-type (push-item instruction literal-type state)
         (tag-instruction? instruction) (handle-tag-instruction instruction state)
         :else ((instruction @instruction-table) state)))))
 
-(defn eval-push 
-  "Executes the contents of the exec stack, aborting prematurely if execution limits are 
-exceeded. The resulting push state will map :termination to :normal if termination was 
+(defn eval-push
+  "Executes the contents of the exec stack, aborting prematurely if execution limits are
+exceeded. The resulting push state will map :termination to :normal if termination was
 normal, or :abnormal otherwise."
   ([state] (eval-push state false))
   ([state print]
@@ -1556,14 +1556,14 @@ normal, or :abnormal otherwise."
                     (assoc s :exec (concat exec-top (:exec s)))
                     (execute-instruction exec-top s))]
             (when print
-              (printf "\nState after %s steps (last step: %s):\n" 
+              (printf "\nState after %s steps (last step: %s):\n"
                 iteration (if (seq? exec-top) "(...)" exec-top))
               (state-pretty-print s))
             (recur (inc iteration) s time-limit)))))))
 
-(defn run-push 
-  "The top level of the push interpreter; calls eval-push between appropriate code/exec 
-pushing/popping. The resulting push state will map :termination to :normal if termination was 
+(defn run-push
+  "The top level of the push interpreter; calls eval-push between appropriate code/exec
+pushing/popping. The resulting push state will map :termination to :normal if termination was
 normal, or :abnormal otherwise."
   ([code state]
     (run-push code state false))
@@ -1596,7 +1596,7 @@ normal, or :abnormal otherwise."
   (individual. program errors total-error history ancestors))
 
 (defn choose-node-index-with-leaf-probability
-  "Returns an index into tree, choosing a leaf with probability 
+  "Returns an index into tree, choosing a leaf with probability
 @global-node-selection-leaf-probability."
   [tree]
   (if (seq? tree)
@@ -1607,7 +1607,7 @@ normal, or :abnormal otherwise."
     0))
 
 (defn choose-node-index-by-tournament
-  "Returns an index into tree, choosing the largest subtree found in 
+  "Returns an index into tree, choosing the largest subtree found in
 a tournament of size @global-node-selection-tournament-size."
   [tree]
   (let [c (count-points tree)
@@ -1623,25 +1623,25 @@ a tournament of size @global-node-selection-tournament-size."
 by @global-node-selection-method."
   [tree]
   (let [method @global-node-selection-method]
-    (cond 
+    (cond
       (= method :unbiased) (lrand-int (count-points tree))
       (= method :leaf-probability) (choose-node-index-with-leaf-probability tree)
       (= method :size-tournament) (choose-node-index-by-tournament tree))))
 
-(defn auto-simplify 
+(defn auto-simplify
   "Auto-simplifies the provided individual."
   [ind error-function steps print? progress-interval]
   (when print? (printf "\nAuto-simplifying with starting size: %s" (count-points (:program ind))))
   (loop [step 0 program (:program ind) errors (:errors ind) total-errors (:total-error ind)]
-    (when (and print? 
+    (when (and print?
             (or (>= step steps)
               (zero? (mod step progress-interval))))
-      (printf "\nstep: %s\nprogram: %s\nerrors: %s\ntotal: %s\nsize: %s\n" 
+      (printf "\nstep: %s\nprogram: %s\nerrors: %s\ntotal: %s\nsize: %s\n"
         step (not-lazy program) (not-lazy errors) total-errors (count-points program))
       (flush))
     (if (>= step steps)
-      (make-individual :program program :errors errors :total-error total-errors 
-        :history (:history ind) 
+      (make-individual :program program :errors errors :total-error total-errors
+        :history (:history ind)
         :ancestors (if maintain-ancestors
                      (cons (:program ind) (:ancestors ind))
                      (:ancestors ind)))
@@ -1669,7 +1669,7 @@ by @global-node-selection-method."
   [best population generation error-function report-simplifications]
   :no-problem-specific-report-function-defined)
 
-(defn report 
+(defn report
   "Reports on the specified generation of a pushgp run. Returns the best
   individual of the generation."
   [population generation error-function report-simplifications]
@@ -1701,7 +1701,7 @@ by @global-node-selection-method."
 (defn select
   "Conducts a tournament and returns the individual with the lower total error."
   [pop tournament-size radius location]
-  (let [tournament-set 
+  (let [tournament-set
         (doall
           (for [_ (range tournament-size)]
             (nth pop
@@ -1712,10 +1712,10 @@ by @global-node-selection-method."
     (reduce (fn [i1 i2] (if (< (:total-error i1) (:total-error i2)) i1 i2))
 	     tournament-set)))
 
-(defn mutate 
+(defn mutate
   "Returns a mutated version of the given individual."
   [ind mutation-max-points max-points atom-generators]
-  (let [new-program (insert-code-at-point (:program ind) 
+  (let [new-program (insert-code-at-point (:program ind)
                       (select-node-index (:program ind))
                       (random-code mutation-max-points atom-generators))]
     (if (> (count-points new-program) max-points)
@@ -1725,12 +1725,12 @@ by @global-node-selection-method."
                      (cons (:program ind) (:ancestors ind))
                      (:ancestors ind))))))
 
-(defn crossover 
-  "Returns a copy of parent1 with a random subprogram replaced with a random 
+(defn crossover
+  "Returns a copy of parent1 with a random subprogram replaced with a random
 subprogram of parent2."
   [parent1 parent2 max-points]
-  (let [new-program (insert-code-at-point 
-                      (:program parent1) 
+  (let [new-program (insert-code-at-point
+                      (:program parent1)
                       (select-node-index (:program parent1))
                       (code-at-point (:program parent2)
                         (select-node-index (:program parent2))))]
@@ -1752,22 +1752,22 @@ subprogram of parent2."
           te (if (number? (:total-error i))
                (:total-error i)
                (keep-number-reasonable (reduce + e)))]
-      (make-individual :program p :errors e :total-error te 
+      (make-individual :program p :errors e :total-error te
         :history (if maintain-histories (cons te (:history i)) (:history i))
         :ancestors (:ancestors i)))))
 
 (defn breed
-  "Replaces the state of the given agent with an individual bred from the given population (pop), 
+  "Replaces the state of the given agent with an individual bred from the given population (pop),
 using the given parameters."
-  [agt location rand-gen pop error-function population-size max-points atom-generators 
-   mutation-probability  mutation-max-points crossover-probability simplification-probability 
+  [agt location rand-gen pop error-function population-size max-points atom-generators
+   mutation-probability  mutation-max-points crossover-probability simplification-probability
    tournament-size reproduction-simplifications trivial-geography-radius]
   (binding [thread-local-random-generator rand-gen]
     (let [n (lrand)]
-      (cond 
+      (cond
         ;; mutation
         (< n mutation-probability)
-        (mutate (select pop tournament-size trivial-geography-radius location) 
+        (mutate (select pop tournament-size trivial-geography-radius location)
           mutation-max-points max-points atom-generators)
         ;; crossover
         (< n (+ mutation-probability crossover-probability))
@@ -1779,7 +1779,7 @@ using the given parameters."
         (auto-simplify (select pop tournament-size trivial-geography-radius location)
           error-function reproduction-simplifications false 1000)
         ;; replication
-        true 
+        true
         (select pop tournament-size trivial-geography-radius location)))))
 
 (defmacro print-params
@@ -1793,7 +1793,7 @@ elimination tournaments to reach the provided target-size."
   (let [popsize (count population)]
     (if (<= popsize target-size)
       population
-      (recur (let [tournament-index-set 
+      (recur (let [tournament-index-set
                    (let [first-location (lrand-int popsize)]
                      (cons first-location
                        (doall
@@ -1803,10 +1803,10 @@ elimination tournaments to reach the provided target-size."
                              (mod (+ first-location (- (lrand-int (+ 1 (* radius 2))) radius))
                                popsize))))))
                    victim-index
-                   (reduce (fn [i1 i2] 
+                   (reduce (fn [i1 i2]
                              (if (> (:total-error (nth population i1))
                                    (:total-error (nth population i2)))
-                               i1 
+                               i1
                                i2))
                      tournament-index-set)]
                (vec (concat (subvec population 0 victim-index)
@@ -1816,7 +1816,7 @@ elimination tournaments to reach the provided target-size."
 (defn pushgp
   "The top-level routine of pushgp."
   [& {:keys [error-function error-threshold population-size max-points atom-generators max-generations
-             max-mutations mutation-probability mutation-max-points crossover-probability 
+             max-mutations mutation-probability mutation-max-points crossover-probability
              simplification-probability tournament-size report-simplifications final-report-simplifications
              reproduction-simplifications trivial-geography-radius decimation-ratio decimation-tournament-size
              evalpush-limit evalpush-time-limit node-selection-method node-selection-leaf-probability
@@ -1826,7 +1826,7 @@ elimination tournaments to reach the provided target-size."
            population-size 1000
            max-points 50
            atom-generators (concat @registered-instructions
-                             (list 
+                             (list
                                (fn [] (lrand-int 100))
                                (fn [] (lrand))))
            max-generations 1001
@@ -1855,16 +1855,16 @@ elimination tournaments to reach the provided target-size."
   (reset! global-node-selection-leaf-probability node-selection-leaf-probability)
   (reset! global-node-selection-tournament-size node-selection-tournament-size)
   (printf "\nStarting PushGP run.\n\n") (flush)
-  (print-params 
-    (error-function error-threshold population-size max-points atom-generators max-generations 
+  (print-params
+    (error-function error-threshold population-size max-points atom-generators max-generations
       mutation-probability mutation-max-points crossover-probability
       simplification-probability tournament-size report-simplifications
       final-report-simplifications trivial-geography-radius decimation-ratio
       decimation-tournament-size evalpush-limit evalpush-time-limit node-selection-method
       node-selection-tournament-size node-selection-leaf-probability))
   (printf "\nGenerating initial population...\n") (flush)
-  (let [pop-agents (vec (doall (for [_ (range population-size)] 
-                                 (agent (make-individual 
+  (let [pop-agents (vec (doall (for [_ (range population-size)]
+                                 (agent (make-individual
                                           :program (random-code max-points atom-generators))
                                    :error-handler (fn [agnt except] (println except))))))
         child-agents (vec (doall (for [_ (range population-size)]
@@ -1875,7 +1875,7 @@ elimination tournaments to reach the provided target-size."
     (loop [generation 0]
       (printf "\n\n-----\nProcessing generation: %s\nComputing errors..." generation) (flush)
       ;; point for mod
-      ;; call error function on population 
+      ;; call error function on population
       (dorun (map #(send % evaluate-individual error-function %2) pop-agents rand-gens))
       (apply await pop-agents) ;; SYNCHRONIZE
       (printf "\nDone computing errors.") (flush)
@@ -1883,7 +1883,7 @@ elimination tournaments to reach the provided target-size."
       (let [best (report (vec (doall (map deref pop-agents))) generation error-function report-simplifications)]
         (if (<= (:total-error best) error-threshold)
           (do (printf "\n\nSUCCESS at generation %s\nSuccessful program: %s\nErrors: %s\nTotal error: %s\nHistory: %s\nSize: %s\n\n"
-                generation (not-lazy (:program best)) (not-lazy (:errors best)) (:total-error best) 
+                generation (not-lazy (:program best)) (not-lazy (:errors best)) (:total-error best)
                 (not-lazy (:history best)) (count-points (:program best)))
             (when print-ancestors-of-solution
               (printf "\nAncestors of solution:\n")
@@ -1892,15 +1892,15 @@ elimination tournaments to reach the provided target-size."
           (do (if (>= generation max-generations)
                 (printf "\nFAILURE\n")
                 (do (printf "\nProducing offspring...") (flush)
-                  (let [pop (decimate (vec (doall (map deref pop-agents))) 
+                  (let [pop (decimate (vec (doall (map deref pop-agents)))
                               (int (* decimation-ratio population-size))
-                              decimation-tournament-size 
+                              decimation-tournament-size
                               trivial-geography-radius)]
                     (dotimes [i population-size]
-                      (send (nth child-agents i) 
-                        breed i (nth rand-gens i) pop error-function population-size max-points atom-generators 
-                        mutation-probability mutation-max-points crossover-probability 
-                        simplification-probability tournament-size reproduction-simplifications 
+                      (send (nth child-agents i)
+                        breed i (nth rand-gens i) pop error-function population-size max-points atom-generators
+                        mutation-probability mutation-max-points crossover-probability
+                        simplification-probability tournament-size reproduction-simplifications
                         trivial-geography-radius)))
                   (apply await child-agents) ;; SYNCHRONIZE
                   (printf "\nInstalling next generation...") (flush)
@@ -1940,7 +1940,7 @@ of nil values in execute-instruction, do see if any instructions are introducing
 
 ;(stress-test 10000)
 
-;; (defn -main 
+;; (defn -main
 ;;   "A main function for clojush, which assumes that the first/only argument is the name
 ;;   of a problem file that contains a top level call. Exits after completion of the call."
 ;;   [& args]

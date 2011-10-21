@@ -40,7 +40,7 @@
 	      (let [xloc (nth pushlist x (last pushlist))]
 		(->> (Strategy. (:code xloc) (:type xloc))
 		     (Player. x [] [] capacity)))))
-	  ;; get current player decisions 
+	  ;; get current player decisions
 	  (get-decisions [playerlist]
 	    (pmap #(last (:choices %)) playerlist))
 	  ;; get all player decisions
@@ -49,7 +49,7 @@
 	  ;; get specific player decisions
 	  (get-player-decisions [playernum playerlist]
 	    (-> playerlist get-all-decisions (nth playernum)))
-	  ;; sum payoff value 
+	  ;; sum payoff value
 	  (payoff-sum [decisions capacity]
 	    (+ 1 (* 2 (- capacity (apply + decisions)))))
 	  (apply-payoff [payoff player-struct]
@@ -90,7 +90,7 @@
 (defn fit-fn
   [stratlist]
   (fn [program]
-    (letfn [(sm [pushprog cljstrat]	
+    (letfn [(sm [pushprog cljstrat]
 	      (cons (Strategy. pushprog "push")
 		    (repeatedly 1 #(Strategy. cljstrat "clj"))))
 	    (stratmap [pushprog stratlist]
@@ -108,7 +108,7 @@
 		      (filter #(< % pushval) scorelist))))
 	    (sum-games [pushcode stratlist]
 	      (list (apply + (pmap #(test-fit %) (pmap fit-compare (gametest pushcode stratlist))))))
-	    
+
 	    (sum-games2 [pushcode stratlist]
 	      (pmap #(test-fit %) (pmap fit-compare (gametest pushcode stratlist))))]
       ;; (doall
